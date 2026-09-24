@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f6f3ee" />
+  <title>PrepLab</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root{
+      --bg:#f6f3ee;--panel:rgba(255,255,255,.78);--panel-strong:#fff;--text:#171716;--muted:#6d6b67;
+      --line:rgba(20,20,18,.09);--accent:#171716;--soft:#ece8df;--good:#1f7a53;--warn:#a96710;--bad:#a63c3c;
+      --shadow:0 16px 45px rgba(31,28,23,.08);--r:24px;--r2:16px;
+    }
+    @media (prefers-color-scheme:dark){
+      :root{--bg:#11110f;--panel:rgba(31,31,28,.82);--panel-strong:#20201d;--text:#f6f4ef;--muted:#a9a59c;--line:rgba(255,255,255,.08);--accent:#f6f4ef;--soft:#2a2925;--good:#77d5a7;--warn:#efb85c;--bad:#f08b8b;--shadow:0 16px 45px rgba(0,0,0,.22)}
+    }
+    *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif}
+    body{min-height:100vh;padding-bottom:110px;background-image:radial-gradient(circle at 10% -10%,rgba(227,206,174,.18),transparent 30%),radial-gradient(circle at 100% 15%,rgba(205,221,206,.18),transparent 26%)}
+    button,input,select,textarea{font:inherit} button{cursor:pointer}
+    .shell{max-width:1180px;margin:auto;padding:26px 18px 80px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}
+    .brand h1{margin:0;font-size:32px;letter-spacing:-1.2px}.brand p{margin:4px 0 0;color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid var(--line);border-radius:999px;background:var(--panel);backdrop-filter:blur(20px);font-size:13px;color:var(--muted)}
+    .grid{display:grid;gap:16px}.grid.two{grid-template-columns:1.3fr .7fr}.grid.three{grid-template-columns:repeat(3,1fr)}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);backdrop-filter:blur(22px)}
+    .card h2,.card h3{margin:0 0 6px;letter-spacing:-.4px}.card h2{font-size:20px}.card h3{font-size:16px}.sub{color:var(--muted);font-size:14px;margin:0}
+    .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}.section-head .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:0;border-radius:14px;padding:11px 14px;background:var(--accent);color:var(--bg);font-weight:700}.btn.secondary{background:var(--soft);color:var(--text);border:1px solid var(--line)}.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}.btn.small{padding:8px 10px;border-radius:11px;font-size:13px}.btn.danger{background:rgba(166,60,60,.12);color:var(--bad)}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{padding:16px;border-radius:18px;background:var(--soft);border:1px solid var(--line)}.stat b{display:block;font-size:24px;letter-spacing:-.7px}.stat span{font-size:12px;color:var(--muted)}
+    .progress-wrap{margin-top:14px}.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}.track{height:9px;border-radius:999px;background:var(--soft);overflow:hidden}.fill{height:100%;border-radius:inherit;background:var(--accent);transition:width .25s ease}
+    .list{display:grid;gap:10px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:16px;background:var(--soft);border:1px solid var(--line)}.row .meta{min-width:0}.row .meta b{display:block}.row .meta span{display:block;color:var(--muted);font-size:13px;margin-top:3px}.row .right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel-strong)}.qty button{width:34px;height:34px;border:0;background:transparent;color:var(--text);font-weight:800}.qty span{min-width:44px;text-align:center;font-size:13px;font-weight:700}
+    .tag{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;background:var(--panel-strong);border:1px solid var(--line);font-size:11px;color:var(--muted)}
+    .macroline{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.macroline .tag strong{color:var(--text);margin-right:3px}
+    .empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:18px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field{display:grid;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:13px;background:var(--panel-strong);color:var(--text);padding:12px 13px;outline:none}.field textarea{min-height:90px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(80,80,70,.35)}
+    .tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom));z-index:30;display:flex;gap:4px;padding:6px;background:rgba(28,28,25,.88);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:20px;box-shadow:0 12px 35px rgba(0,0,0,.28)}
+    .tabs button{border:0;background:transparent;color:#aaa59c;padding:10px 14px;border-radius:14px;font-size:12px;font-weight:700}.tabs button.active{background:#f6f3ee;color:#181816}
+    .page{display:none}.page.active{display:block}
+    .hero{padding:26px}.hero h2{font-size:30px;letter-spacing:-1px;margin-bottom:8px}.hero .lead{font-size:16px;color:var(--muted);max-width:720px}
+    .notice{padding:12px 14px;border-radius:14px;background:rgba(169,103,16,.1);color:var(--warn);font-size:13px;border:1px solid rgba(169,103,16,.18)}
+    .splitline{height:1px;background:var(--line);margin:16px 0}
+    .range-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px}.range-row input{width:100%}.effort-label{min-width:110px;text-align:right;font-weight:800}
+    dialog{border:0;border-radius:26px;background:var(--panel-strong);color:var(--text);width:min(760px,calc(100vw - 24px));max-height:88vh;padding:0;box-shadow:0 30px 100px rgba(0,0,0,.35)}dialog::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(4px)}
+    .modal-head{padding:20px 22px 12px;display:flex;justify-content:space-between;align-items:center}.modal-body{padding:0 22px 22px;overflow:auto;max-height:74vh}.iconbtn{border:1px solid var(--line);background:var(--soft);color:var(--text);width:36px;height:36px;border-radius:12px;font-weight:800}
+    .ingredient-head,.ingredient-row{display:grid;grid-template-columns:1.6fr .7fr .7fr .9fr auto;gap:8px;align-items:center}.ingredient-head{font-size:11px;color:var(--muted);font-weight:800;padding:0 4px 6px}.ingredient-row{margin-bottom:8px}.ingredient-row input,.ingredient-row select{min-width:0;border:1px solid var(--line);border-radius:11px;padding:10px;background:var(--panel-strong);color:var(--text)}
+    .shop-group{margin-top:18px}.shop-group h3{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.shop-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.shop-item:last-child{border:0}.shop-item input[type=checkbox]{width:20px;height:20px}.price{font-variant-numeric:tabular-nums;font-weight:800}.tiny{font-size:11px;color:var(--muted)}
+    .recipe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.recipe-card{padding:17px;border-radius:20px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)}.recipe-card .emoji{font-size:32px}.recipe-card h3{margin:8px 0 3px}.recipe-card p{margin:0;color:var(--muted);font-size:13px}.recipe-card .footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px}
+    .kpi{display:flex;align-items:end;justify-content:space-between;padding:16px;background:var(--soft);border:1px solid var(--line);border-radius:17px}.kpi strong{font-size:28px;letter-spacing:-.8px}.kpi span{font-size:12px;color:var(--muted)}
+    .mutedbox{background:var(--soft);border:1px solid var(--line);padding:14px;border-radius:16px;font-size:13px;color:var(--muted)}
+    @media(max-width:850px){.grid.two,.grid.three{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.recipe-grid{grid-template-columns:repeat(2,1fr)}.ingredient-head{display:none}.ingredient-row{grid-template-columns:1fr 1fr}.ingredient-row .wide{grid-column:1/-1}.tabs button{padding:10px 11px;font-size:11px}}
+    @media(max-width:560px){.shell{padding:18px 12px 90px}.topbar{align-items:flex-start}.brand h1{font-size:27px}.pill{display:none}.card{padding:16px;border-radius:20px}.stats{grid-template-columns:1fr 1fr}.recipe-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.tabs{width:calc(100vw - 18px);justify-content:space-between}.tabs button{flex:1;padding:10px 5px}.row{align-items:flex-start}.row .right{flex-direction:column;align-items:flex-end}.hero{padding:19px}.hero h2{font-size:26px}.section-head{align-items:flex-start}.section-head .actions{justify-content:flex-end}.ingredient-row{grid-template-columns:1fr 1fr}.ingredient-row .wide{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <div class="brand"><h1>PrepLab</h1><p>Meal prep that bends around your life.</p></div>
+      <div class="pill" id="topTarget">No target set</div>
+    </div>
+
+    <section id="dashboard" class="page active"></section>
+    <section id="plan" class="page"></section>
+    <section id="recipes" class="page"></section>
+    <section id="shop" class="page"></section>
+    <section id="profile" class="page"></section>
+  </main>
+
+  <nav class="tabs" aria-label="Main navigation">
+    <button data-page="dashboard" class="active">Home</button>
+    <button data-page="plan">Plan</button>
+    <button data-page="recipes">Recipes</button>
+    <button data-page="shop">Shop</button>
+    <button data-page="profile">Profile</button>
+  </nav>
+
+  <dialog id="recipeDialog">
+    <div class="modal-head"><div><h2 id="recipeDialogTitle">New recipe</h2><p class="sub">Enter ingredients as you measure them before cooking.</p></div><button class="iconbtn" onclick="recipeDialog.close()">×</button></div>
+    <div class="modal-body">
+      <form id="recipeForm">
+        <input type="hidden" id="recipeId" />
+        <div class="form-grid">
+          <div class="field"><label>Recipe name</label><input id="recipeName" required placeholder="Creamy Cajun Chicken Pasta" /></div>
+          <div class="field"><label>Emoji</label><input id="recipeEmoji" maxlength="4" placeholder="🍝" /></div>
+          <div class="field"><label>Base serves</label><input id="recipeServes" type="number" min="1" step="1" value="4" required /></div>
+          <div class="field"><label>Meal type</label><select id="recipeMealType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option><option>Smoothie</option></select></div>
+          <div class="field"><label>Prep time (min)</label><input id="recipePrep" type="number" min="0" value="10" /></div>
+          <div class="field"><label>Cook time (min)</label><input id="recipeCook" type="number" min="0" value="20" /></div>
+          <div class="field"><label>Main ingredients</label><input id="recipeMainCount" type="number" min="1" value="7" /></div>
+          <div class="field"><label>Effort level</label><select id="recipeEffort"><option value="1">Can't be fucked</option><option value="2">Easy</option><option value="3" selected>Normal</option><option value="4">Proper cooking</option><option value="5">MasterChef</option></select></div>
+          <div class="field full"><label>Optional cooked batch weight (g)</label><input id="recipeCookedWeight" type="number" min="0" placeholder="e.g. 2340" /></div>
+          <div class="field full"><label>Method / instructions</label><textarea id="recipeMethod" placeholder="1. Prep the ingredients...\n2. Cook...\n3. Divide into serves..."></textarea></div>
+        </div>
+        <div class="splitline"></div>
+        <div class="section-head"><div><h3>Ingredients</h3><p class="sub">Macros are calculated from the values you enter per 100 g / 100 mL / unit.</p></div><button type="button" class="btn secondary small" id="addIngredientBtn">+ Ingredient</button></div>
+        <div class="ingredient-head"><div>Ingredient</div><div>Qty</div><div>Unit</div><div>State</div><div></div></div>
+        <div id="ingredientRows"></div>
+        <div class="mutedbox">Nutrition values are stored with each ingredient for now. Ingredient states stay explicit: raw, dry, drained or as packaged. AI-generated recipes are checked by PrepLab using the same nutrition calculator before you save them.</div>
+        <div style="height:14px"></div>
+        <button class="btn" type="submit">Save recipe</button>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="mealDialog">
+    <div class="modal-head"><div><h2>Add to plan</h2><p class="sub">Choose a recipe, how many serves you need, and whether its macros are locked.</p></div><button class="iconbtn" onclick="mealDialog.close()">×</button></div>
+    <div class="modal-body">
+      <form id="mealForm">
+        <div class="form-grid">
+          <div class="field full"><label>Recipe</label><select id="mealRecipe"></select></div>
+          <div class="field"><label>Serves / nights</label><input id="mealServes" type="number" min="1" step="1" value="4" /></div>
+          <div class="field"><label>Frequency</label><select id="mealFrequency"><option value="prep">Prepared meal</option><option value="daily">Every plan day</option><option value="once">Once only</option></select></div>
+          <div class="field full"><label><input id="mealLocked" type="checkbox" checked /> Lock this meal when balancing macros</label></div>
+        </div>
+        <div style="height:14px"></div><button class="btn" type="submit">Add meal</button>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="generateDialog">
+    <div class="modal-head"><div><h2>Generate meal ideas</h2><p class="sub">Tasty, batch-friendly ideas without 59 ingredients.</p></div><button class="iconbtn" onclick="generateDialog.close()">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Meal type</label><select id="genType"><option>Dinner</option><option>Lunch</option><option>Breakfast</option><option>Smoothie</option></select></div>
+        <div class="field"><label>Max main ingredients</label><input id="genIngredients" type="number" min="4" max="15" value="8" /></div>
+        <div class="field"><label>Max total time (min)</label><input id="genTime" type="number" min="10" max="120" value="35" /></div>
+        <div class="field"><label>Protein preference</label><select id="genProtein"><option value="any">Anything</option><option value="chicken">Chicken</option><option value="beef">Beef</option><option value="pork">Pork</option><option value="fish">Fish</option><option value="vegetarian">Vegetarian</option></select></div>
+        <div class="field"><label>Cuisine</label><select id="genCuisine"><option value="any">Surprise me</option><option>Italian</option><option>Mexican</option><option>Japanese</option><option>Thai</option><option>Indian</option><option>Greek</option><option>Korean</option><option>Chinese</option><option>Middle Eastern</option><option>Mediterranean</option><option>American</option><option>French</option><option>Vietnamese</option><option value="custom">Other…</option></select></div>
+        <div class="field"><label>Mood / vibe</label><select id="genVibe"><option value="any">Anything</option><option>Comforting</option><option>Fresh & light</option><option>Spicy</option><option>Creamy</option><option>Rich & savoury</option><option>Crunchy</option><option>Takeaway-inspired</option></select></div>
+        <div class="field full" id="customCuisineField" style="display:none"><label>Custom cuisine</label><input id="genCuisineCustom" placeholder="e.g. Brazilian, Turkish, fusion…" /></div>
+        <div class="field full"><label>Give me something like…</label><textarea id="genRequest" placeholder="e.g. I want something creamy and spicy, or a meal-prep friendly burger"></textarea></div>
+        <div class="field full"><label>How much effort can I be fucked with?</label><div class="range-row"><input id="genEffort" type="range" min="1" max="5" value="2" /><div class="effort-label" id="effortText">Easy</div></div></div>
+      </div>
+      <div class="splitline"></div>
+      <div id="generatedIdeas" class="list"></div><div class="tiny" style="margin-top:10px" id="aiStatus">Ready when you are — Gemini will only run when you press the button.</div>
+      <button class="btn secondary" style="margin-top:14px" id="generateIdeasBtn">Give me 3 ideas</button>
+    </div>
+  </dialog>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const uid=()=>Math.random().toString(36).slice(2,10);
+const round=(n,d=0)=>Number(Number(n||0).toFixed(d));
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const money=n=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD'}).format(n||0);
+
+const defaultState={
+  profile:{age:27,weight:85,height:186,sex:'male',activity:1.55,goal:'loss',goalRate:0.15,calories:null,protein:null,carbs:null,fat:null},
+  preferences:{days:5,supermarket:'woolworths',pricingMode:'sample',effort:2,maxIngredients:8,maxTime:35},
+  pantry:[],
+  recipes:[],
+  plan:{name:'This week',days:5,meals:[]},
+  priceBook:{
+    woolworths:{'Chicken breast':11.5,'Lean beef mince':15,'Pasta':3.2,'Passata':2.4,'Spinach':4.5,'Light cream cheese':4.2,'Basmati rice':3.8,'Greek yoghurt':6.5,'Banana':4.5,'Protein milk':4.1,'Rolled oats':2.2,'Whey protein':38,'Potato':3.5,'Light mozzarella':8.5,'Corn kernels':3.2,'Tortilla wraps':5.5,'Black beans':2.2,'Capsicum':6.5,'Soy sauce':4.8,'Udon noodles':5.2},
+    coles:{'Chicken breast':11.0,'Lean beef mince':14.5,'Pasta':3.0,'Passata':2.3,'Spinach':4.0,'Light cream cheese':4.5,'Basmati rice':4.0,'Greek yoghurt':6.0,'Banana':4.2,'Protein milk':4.0,'Rolled oats':2.0,'Whey protein':39,'Potato':3.2,'Light mozzarella':8.0,'Corn kernels':3.0,'Tortilla wraps':5.0,'Black beans':2.0,'Capsicum':6.0,'Soy sauce':4.5,'Udon noodles':5.0}
+  }
+};
+
+function load(){try{return {...structuredClone(defaultState),...JSON.parse(localStorage.getItem('preplabState')||'{}')}}catch{return structuredClone(defaultState)}}
+let state=load();
+function save(){localStorage.setItem('preplabState',JSON.stringify(state));renderAll()}
+
+function seedIfNeeded(){
+  if(state.recipes?.length)return;
+  state.recipes=[
+    recipe('Creamy Cajun Chicken Pasta','🍝','Dinner',4,3,8,10,25,[
+      ing('Chicken breast',800,'g','raw',120,23,0,2.6),ing('Pasta',320,'g','dry',357,12.5,72,1.5),ing('Passata',500,'g','as packaged',32,1.5,5,0.2),ing('Light cream cheese',160,'g','as packaged',160,8,6,10),ing('Spinach',160,'g','raw',23,2.9,1.4,0.4),ing('Capsicum',250,'g','raw',26,1,6,0.3),ing('Cajun seasoning',20,'g','dry',250,8,40,5,true),ing('Olive oil',10,'g','as packaged',884,0,0,100,true)
+    ], '1. Cook the pasta until just tender.\n2. Season and cook the raw chicken until fully cooked.\n3. Cook capsicum, then add passata, spinach and light cream cheese.\n4. Stir through the pasta and chicken.\n5. Divide into 4 containers. Keep the optional cooked batch weight for portioning.'),
+    recipe('Korean Beef Noodle Bowls','🥢','Dinner',4,2,8,10,15,[
+      ing('Lean beef mince',700,'g','raw',137,21,0,5),ing('Udon noodles',800,'g','as packaged',130,3.5,27,0.8),ing('Capsicum',250,'g','raw',26,1,6,0.3),ing('Spinach',160,'g','raw',23,2.9,1.4,0.4),ing('Soy sauce',70,'mL','as packaged',53,8,5,0.6),ing('Honey',35,'g','as packaged',304,0.3,82,0,true),ing('Garlic',15,'g','raw',149,6.4,33,0.5,true),ing('Sesame oil',10,'g','as packaged',884,0,0,100,true)
+    ], '1. Brown the raw beef mince.\n2. Cook the udon according to the packet instructions.\n3. Stir-fry capsicum and spinach.\n4. Add soy, honey, garlic and sesame oil, then return the beef to the pan.\n5. Toss through the noodles and divide into 4 serves.'),
+    recipe('Banana Protein Smoothie','🥤','Smoothie',1,1,5,5,0,[
+      ing('Banana',120,'g','raw',89,1.1,23,0.3),ing('Protein milk',300,'mL','as packaged',58,6,5,1),ing('Whey protein',35,'g','dry',390,78,8,6),ing('Rolled oats',40,'g','dry',379,13,68,7),ing('Ice',150,'g','as packaged',0,0,0,0,true)
+    ], '1. Add the milk, banana, whey and oats to a blender.\n2. Add ice.\n3. Blend until smooth and drink immediately.' )
+  ];
+  save();
+}
+function recipe(name,emoji,type,serves,effort,count,prep,cook,ingredients,method=''){return{id:uid(),name,emoji,type,serves,effort,count,prep,cook,cookedWeight:null,method,ingredients}}
+function ing(name,qty,unit,stateName,kcal,p,c,f,pantry=false){return{id:uid(),name,qty,unit,state:stateName,kcal,p,c,f,pantry}}
+
+function nutrientFactor(i){
+ const unit=String(i.unit||'g').toLowerCase();
+ if(unit==='g')return Number(i.qty||0)/100;
+ if(unit==='ml')return Number(i.qty||0)/100;
+ if(unit==='unit')return Number(i.qty||0);
+ const perUnitGrams={piece:{'red bell pepper':150,'capsicum':150,'banana':118,'mango':200,'lime':67,'avocado':150,'egg':50,'eggs':50,'potato':173,'sweet potato':180},clove:{garlic:3},tbsp:{'olive oil':13.5,'sesame oil':13.5,'honey':21,'peanut butter':16,'soy sauce':15,'cajun seasoning':7},tsp:{'olive oil':4.5,'sesame oil':4.5,'honey':7,'salt':6,'black pepper':2.3,'cajun seasoning':2.3}};
+ const key=normaliseIngredientName(i.name);
+ const grams=perUnitGrams[unit]?.[key];
+ return grams ? (Number(i.qty||0)*grams)/100 : Number(i.qty||0)/100;
+}
+function recipeTotals(r){return r.ingredients.reduce((a,i)=>{const f=nutrientFactor(i);a.kcal+=i.kcal*f;a.p+=i.p*f;a.c+=i.c*f;a.f+=i.f*f;return a},{kcal:0,p:0,c:0,f:0})}
+function perServe(r){const t=recipeTotals(r),s=Math.max(1,r.serves);return{kcal:t.kcal/s,p:t.p/s,c:t.c/s,f:t.f/s}}
+function scaledIngredient(i,baseServes,targetServes){return {...i,qty:i.qty*(targetServes/baseServes)}}
+function estimateTargets(){
+  const p=state.profile; const s=p.sex==='female'?-161:5;
+  const bmr=10*p.weight+6.25*p.height-5*p.age+s; const tdee=bmr*Number(p.activity||1.55);
+  let cal=tdee; if(p.goal==='loss')cal=tdee*(1-Number(p.goalRate||.15)); if(p.goal==='gain')cal=tdee*(1+Number(p.goalRate||.1));
+  const protein=p.weight*(p.goal==='loss'?2.0:1.8); const fat=p.weight*.8; const carbs=Math.max(0,(cal-protein*4-fat*9)/4);
+  return{kcal:round(cal),p:round(protein),c:round(carbs),f:round(fat)}
+}
+function activeTargets(){const e=estimateTargets(),p=state.profile;return{kcal:Number(p.calories)||e.kcal,p:Number(p.protein)||e.p,c:Number(p.carbs)||e.c,f:Number(p.fat)||e.f}}
+function planTotals(){return state.plan.meals.reduce((a,m)=>{const r=state.recipes.find(x=>x.id===m.recipeId);if(!r)return a;const n=perServe(r);a.kcal+=n.kcal*m.serves;a.p+=n.p*m.serves;a.c+=n.c*m.serves;a.f+=n.f*m.serves;return a},{kcal:0,p:0,c:0,f:0})}
+function dailyPlanned(){const t=planTotals(),d=Math.max(1,state.plan.days);return{kcal:t.kcal/d,p:t.p/d,c:t.c/d,f:t.f/d}}
+function remaining(){const a=activeTargets(),d=dailyPlanned();return{kcal:a.kcal-d.kcal,p:a.p-d.p,c:a.c-d.c,f:a.f-d.f}}
+
+function setPage(id){$$('.page').forEach(x=>x.classList.toggle('active',x.id===id));$$('.tabs button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'});renderAll()}
+$$('.tabs button').forEach(b=>b.onclick=()=>setPage(b.dataset.page));
+
+function macroTags(n){return `<div class="macroline"><span class="tag"><strong>${round(n.kcal)}</strong> kcal</span><span class="tag"><strong>${round(n.p)}</strong> P</span><span class="tag"><strong>${round(n.c)}</strong> C</span><span class="tag"><strong>${round(n.f)}</strong> F</span></div>`}
+function progress(value,target){return clamp((value/Math.max(1,target))*100,0,125)}
+
+function renderDashboard(){
+  const a=activeTargets(),d=dailyPlanned(),rem=remaining();
+  $('#dashboard').innerHTML=`
+  <div class="card hero"><h2>Build the food you actually want.</h2><p class="lead">Lock in favourite meals, scale them to however many nights you're home, then let PrepLab show what your remaining meals need to do.</p><div class="actions" style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button class="btn" onclick="openMealDialog()">+ Add meal</button><button class="btn secondary" onclick="generateDialog.showModal()">✨ Generate ideas</button></div></div>
+  <div style="height:16px"></div>
+  <div class="grid two">
+    <div class="card"><div class="section-head"><div><h2>Today's macro picture</h2><p class="sub">Average across your ${state.plan.days}-day plan.</p></div><span class="tag">${state.plan.days} days</span></div>
+      ${macroProgress('Calories',d.kcal,a.kcal,'kcal')}${macroProgress('Protein',d.p,a.p,'g')}${macroProgress('Carbs',d.c,a.c,'g')}${macroProgress('Fat',d.f,a.f,'g')}
+    </div>
+    <div class="card"><div class="section-head"><div><h2>Still to fit</h2><p class="sub">What your unlocked meals can aim for each day.</p></div></div>
+      <div class="stats"><div class="stat"><b>${round(rem.kcal)}</b><span>kcal</span></div><div class="stat"><b>${round(rem.p)}</b><span>protein g</span></div><div class="stat"><b>${round(rem.c)}</b><span>carbs g</span></div><div class="stat"><b>${round(rem.f)}</b><span>fat g</span></div></div>
+      <div style="height:12px"></div>${rem.kcal<0?'<div class="notice">Your current plan averages above your calorie target. Reduce a serving or unlock a meal before balancing.</div>':'<div class="mutedbox">Add or generate another meal and we’ll keep recalculating the remaining macro budget automatically.</div>'}
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="grid two"><div class="card"><div class="section-head"><div><h2>Current prep</h2><p class="sub">Change a meal from 5 nights to 4 and everything downstream scales.</p></div><button class="btn secondary small" onclick="setPage('plan')">Open plan</button></div>${renderPlanRows(true)}</div>
+  <div class="card"><div class="section-head"><div><h2>Shopping snapshot</h2><p class="sub">${superLabel()} estimate using your offline price book.</p></div><button class="btn secondary small" onclick="setPage('shop')">Open shop</button></div>${shopSnapshot()}</div></div>`;
+}
+function macroProgress(label,v,t,unit){return `<div class="progress-wrap"><div class="progress-label"><span>${label}</span><span>${round(v)} / ${round(t)} ${unit}</span></div><div class="track"><div class="fill" style="width:${progress(v,t)}%"></div></div></div>`}
+
+function renderPlan(){
+ const a=activeTargets(),d=dailyPlanned(),rem=remaining();
+ $('#plan').innerHTML=`<div class="section-head"><div><h2>${state.plan.name}</h2><p class="sub">Your recipe quantities, plan length and macro balance all stay connected.</p></div><div class="actions"><button class="btn secondary" onclick="generateDialog.showModal()">✨ Generate</button><button class="btn" onclick="openMealDialog()">+ Add meal</button></div></div>
+ <div class="card"><div class="form-grid"><div class="field"><label>Plan name</label><input id="planName" value="${esc(state.plan.name)}"></div><div class="field"><label>How many days are you prepping for?</label><input id="planDays" type="number" min="1" max="14" value="${state.plan.days}"></div></div></div>
+ <div style="height:16px"></div><div class="grid two"><div class="card"><div class="section-head"><div><h2>Meals in this plan</h2><p class="sub">Serves can be changed independently per recipe.</p></div></div>${renderPlanRows(false)}</div>
+ <div class="card"><h2>Macro balance</h2><p class="sub">Daily average based on the total serves in this plan.</p><div style="height:14px"></div>${macroProgress('Calories',d.kcal,a.kcal,'kcal')}${macroProgress('Protein',d.p,a.p,'g')}${macroProgress('Carbs',d.c,a.c,'g')}${macroProgress('Fat',d.f,a.f,'g')}<div class="splitline"></div><h3>Remaining per day</h3>${macroTags(rem)}<div style="height:12px"></div><div class="mutedbox">🔒 Locked meals are treated as non-negotiable. A later optimisation engine can adjust only unlocked recipes/portions around them.</div></div></div>`;
+ $('#planName').onchange=e=>{state.plan.name=e.target.value;save()};$('#planDays').onchange=e=>{state.plan.days=Math.max(1,+e.target.value);state.preferences.days=state.plan.days;save()}
+}
+function renderPlanRows(compact){
+ if(!state.plan.meals.length)return `<div class="empty">No meals yet. Add a recipe to start your plan.</div>`;
+ return `<div class="list">${state.plan.meals.map(m=>{const r=state.recipes.find(x=>x.id===m.recipeId);if(!r)return'';const n=perServe(r);return `<div class="row"><div class="meta"><b>${r.emoji||'🍽️'} ${esc(r.name)} ${m.locked?'🔒':''}</b><span>${m.serves} serves · ${r.type} · ${round(n.kcal)} kcal / ${round(n.p)}g P each · ${money(recipeCost(r,m.serves))} est.</span>${compact?'':`<span>${scaledSummary(r,m.serves)}${r.cookedWeight?` · ~${round((r.cookedWeight/r.serves))}g cooked portion`:''}</span>`}</div><div class="right"><div class="qty"><button onclick="changeMealServes('${m.id}',-1)">−</button><span>${m.serves}</span><button onclick="changeMealServes('${m.id}',1)">+</button></div>${compact?'':`<button class="btn ghost small" onclick="toggleLock('${m.id}')">${m.locked?'Unlock':'Lock'}</button><button class="btn danger small" onclick="removeMeal('${m.id}')">Remove</button>`}</div></div>`}).join('')}</div>`
+}
+function scaledSummary(r,serves){const top=r.ingredients.filter(i=>!i.pantry).slice(0,3).map(i=>{const s=scaledIngredient(i,r.serves,serves);return `${round(s.qty)}${s.unit==='unit'?' ×':s.unit} ${i.name}`}).join(' · ');return `Scaled batch: ${top}${r.ingredients.length>3?' …':''}`}
+function changeMealServes(id,delta){const m=state.plan.meals.find(x=>x.id===id);m.serves=Math.max(1,m.serves+delta);save()} function toggleLock(id){const m=state.plan.meals.find(x=>x.id===id);m.locked=!m.locked;save()} function removeMeal(id){state.plan.meals=state.plan.meals.filter(x=>x.id!==id);save()}
+
+function renderRecipes(){
+ $('#recipes').innerHTML=`<div class="section-head"><div><h2>My Recipes</h2><p class="sub">Build once, then scale to any number of nights.</p></div><button class="btn" onclick="openRecipeDialog()">+ New recipe</button></div>
+ <div class="recipe-grid">${state.recipes.map(r=>{const n=perServe(r);return `<article class="recipe-card"><div class="emoji">${r.emoji||'🍽️'}</div><h3>${esc(r.name)}</h3><p>${r.type} · ${r.serves} base serves · ${r.prep+r.cook} min</p>${macroTags(n)}<div class="tiny" style="margin-top:8px">${recipeCost(r)?`${money(recipeCost(r)/r.serves)} est. / serve at ${superLabel()}`:'Add price-book matches for cost estimate'}${r.cookedWeight?` · ${round(r.cookedWeight/r.serves)}g cooked portion`:''}</div>${r.method?`<div class="mutedbox" style="margin-top:12px;white-space:pre-line"><b>Method</b><br>${esc(r.method)}</div>`:'<div class="mutedbox" style="margin-top:12px"><b>Method</b><br>No method yet — edit the recipe to add instructions.</div>'}<div class="footer"><span class="tag">${effortName(r.effort)}</span><div><button class="btn ghost small" onclick="openRecipeDialog('${r.id}')">Edit</button> <button class="btn secondary small" onclick="quickAddRecipe('${r.id}')">Add</button></div></div></article>`}).join('')}</div>`;
+}
+function effortName(v){return ['','Can’t be fucked','Easy','Normal','Proper cooking','MasterChef'][Number(v)||3]}
+function openRecipeDialog(id){
+ const r=state.recipes.find(x=>x.id===id);$('#recipeDialogTitle').textContent=r?'Edit recipe':'New recipe';$('#recipeId').value=r?.id||'';$('#recipeName').value=r?.name||'';$('#recipeEmoji').value=r?.emoji||'';$('#recipeServes').value=r?.serves||4;$('#recipeMealType').value=r?.type||'Dinner';$('#recipePrep').value=r?.prep??10;$('#recipeCook').value=r?.cook??20;$('#recipeMainCount').value=r?.count??7;$('#recipeEffort').value=r?.effort??3;$('#recipeCookedWeight').value=r?.cookedWeight||'';$('#recipeMethod').value=r?.method||'';renderIngredientEditor(r?.ingredients||[ing('Chicken breast',800,'g','raw',120,23,0,2.6)]);recipeDialog.showModal()
+}
+function renderIngredientEditor(list){$('#ingredientRows').innerHTML=list.map(i=>ingredientRow(i)).join('')}
+function ingredientRow(i){return `<div class="ingredient-row" data-id="${i.id||uid()}"><input class="wide i-name" placeholder="Ingredient" value="${esc(i.name||'')}"><input class="i-qty" type="number" min="0" step="0.1" value="${i.qty||0}"><select class="i-unit"><option ${i.unit==='g'?'selected':''}>g</option><option ${i.unit==='mL'?'selected':''}>mL</option><option ${i.unit==='unit'?'selected':''}>unit</option><option ${i.unit==='piece'?'selected':''}>piece</option><option ${i.unit==='clove'?'selected':''}>clove</option><option ${i.unit==='tbsp'?'selected':''}>tbsp</option><option ${i.unit==='tsp'?'selected':''}>tsp</option></select><select class="i-state"><option value="raw" ${i.state==='raw'?'selected':''}>Raw</option><option value="dry" ${i.state==='dry'?'selected':''}>Dry</option><option value="drained" ${i.state==='drained'?'selected':''}>Drained</option><option value="as packaged" ${i.state==='as packaged'?'selected':''}>As packaged</option></select><button type="button" class="iconbtn" onclick="this.parentElement.remove()">×</button><input class="i-kcal" type="number" step="0.1" placeholder="kcal/100" value="${i.kcal??0}"><input class="i-p" type="number" step="0.1" placeholder="P/100" value="${i.p??0}"><input class="i-c" type="number" step="0.1" placeholder="C/100" value="${i.c??0}"><input class="i-f" type="number" step="0.1" placeholder="F/100" value="${i.f??0}"><label class="tiny"><input class="i-pantry" type="checkbox" ${i.pantry?'checked':''}> pantry staple</label></div>`}
+$('#addIngredientBtn').onclick=()=>$('#ingredientRows').insertAdjacentHTML('beforeend',ingredientRow(ing('',100,'g','raw',0,0,0,0)));
+$('#recipeForm').onsubmit=e=>{e.preventDefault();const ingredients=$$('#ingredientRows .ingredient-row').map(row=>({id:row.dataset.id||uid(),name:row.querySelector('.i-name').value.trim(),qty:+row.querySelector('.i-qty').value,unit:row.querySelector('.i-unit').value,state:row.querySelector('.i-state').value,kcal:+row.querySelector('.i-kcal').value,p:+row.querySelector('.i-p').value,c:+row.querySelector('.i-c').value,f:+row.querySelector('.i-f').value,pantry:row.querySelector('.i-pantry').checked})).filter(i=>i.name);const id=$('#recipeId').value||uid();const obj={id,name:$('#recipeName').value.trim(),emoji:$('#recipeEmoji').value.trim()||'🍽️',serves:+$('#recipeServes').value,type:$('#recipeMealType').value,prep:+$('#recipePrep').value,cook:+$('#recipeCook').value,count:+$('#recipeMainCount').value,effort:+$('#recipeEffort').value,cookedWeight:+$('#recipeCookedWeight').value||null,method:$('#recipeMethod').value.trim(),ingredients};const ix=state.recipes.findIndex(r=>r.id===id);if(ix>=0)state.recipes[ix]=obj;else state.recipes.unshift(obj);recipeDialog.close();save()};
+
+function openMealDialog(id){$('#mealRecipe').innerHTML=state.recipes.map(r=>`<option value="${r.id}" ${id===r.id?'selected':''}>${r.emoji} ${esc(r.name)}</option>`).join('');$('#mealServes').value=state.plan.days;mealDialog.showModal()}
+function quickAddRecipe(id){openMealDialog(id)}
+$('#mealForm').onsubmit=e=>{e.preventDefault();const r=state.recipes.find(x=>x.id===$('#mealRecipe').value);let serves=+$('#mealServes').value;const f=$('#mealFrequency').value;if(f==='daily')serves=state.plan.days;if(f==='once')serves=1;state.plan.meals.push({id:uid(),recipeId:r.id,serves,frequency:f,locked:$('#mealLocked').checked});mealDialog.close();save();setPage('plan')}
+
+function shoppingData(){
+ const map=new Map();
+ state.plan.meals.forEach(m=>{const r=state.recipes.find(x=>x.id===m.recipeId);if(!r)return;r.ingredients.forEach(i=>{if(i.pantry && state.pantry.includes(i.name))return;const s=scaledIngredient(i,r.serves,m.serves),key=i.name+'|'+i.unit+'|'+i.state;const x=map.get(key)||{name:i.name,qty:0,unit:i.unit,state:i.state,pantry:i.pantry};x.qty+=s.qty;map.set(key,x)})});
+ return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name));
+}
+function category(name){const n=name.toLowerCase();if(/chicken|beef|pork|fish|salmon|tuna/.test(n))return'Meat & protein';if(/milk|yoghurt|cheese|cream/.test(n))return'Dairy & chilled';if(/spinach|capsicum|banana|potato|onion|garlic|fruit|veg/.test(n))return'Produce';if(/pasta|rice|oats|noodle|wrap/.test(n))return'Pantry & grains';return'Other'}
+function priceEstimate(item){const book=state.priceBook[state.preferences.supermarket]||{};const perKg=book[item.name];if(!perKg)return 0;if(item.unit==='unit')return perKg*item.qty;return perKg*(item.qty/1000)}
+function superLabel(){return state.preferences.supermarket==='coles'?'Coles':state.preferences.supermarket==='woolworths'?'Woolworths':'No preference'}
+function recipeCost(r,serves=r.serves){const book=state.priceBook[state.preferences.supermarket]||{};return r.ingredients.reduce((sum,i)=>{const rate=book[i.name];if(!rate)return sum;const scaled=scaledIngredient(i,r.serves,serves);return sum+(scaled.unit==='unit'?rate*scaled.qty:rate*(scaled.qty/1000))},0)}
+function shoppingTotal(){return shoppingData().reduce((s,i)=>s+priceEstimate(i),0)}
+function shopSnapshot(){const data=shoppingData();if(!data.length)return'<div class="empty">Add meals to build your shop.</div>';return `<div class="kpi"><div><span>Estimated shop</span><br><strong>${money(shoppingTotal())}</strong></div><span>${data.length} ingredients</span></div><div style="height:12px"></div><div class="list">${data.slice(0,4).map(i=>`<div class="row"><div class="meta"><b>${i.name}</b><span>${round(i.qty)} ${i.unit} · ${i.state}</span></div><span class="price">${priceEstimate(i)?money(priceEstimate(i)):'—'}</span></div>`).join('')}</div>`}
+
+function renderShop(){const data=shoppingData();const groups=Object.groupBy?Object.groupBy(data,i=>category(i.name)):data.reduce((a,i)=>((a[category(i.name)]??=[]).push(i),a),{});$('#shop').innerHTML=`<div class="section-head"><div><h2>Shopping List</h2><p class="sub">Scaled from your actual plan quantities.</p></div><button class="btn secondary" onclick="clearChecks()">Clear ticks</button></div>
+<div class="grid two"><div class="card"><div class="form-grid"><div class="field"><label>Supermarket</label><select id="shopSuper"><option value="woolworths" ${state.preferences.supermarket==='woolworths'?'selected':''}>Woolworths</option><option value="coles" ${state.preferences.supermarket==='coles'?'selected':''}>Coles</option></select></div><div class="field"><label>Pricing</label><select disabled><option>Offline estimate (editable)</option></select></div></div><div style="height:12px"></div><div class="notice">Prices are sample/offline estimates in this build — not live Woolworths or Coles prices. You can edit the price book below.</div></div><div class="card"><div class="kpi"><div><span>Estimated total</span><br><strong>${money(shoppingTotal())}</strong></div><span>${data.length} ingredients</span></div><div style="height:10px"></div><div class="tiny">Actual checkout total will vary with pack sizes, specials, brands and store location.</div></div></div>
+<div style="height:16px"></div><div class="grid two"><div class="card">${data.length?Object.entries(groups).map(([g,items])=>`<div class="shop-group"><h3>${g}</h3>${items.map(i=>`<label class="shop-item"><input type="checkbox" data-shop="${esc(i.name)}"><div><b>${i.name}</b><div class="tiny">Need ${round(i.qty)} ${i.unit} · ${i.state}${i.pantry?' · pantry staple':''}</div></div><span class="price">${priceEstimate(i)?money(priceEstimate(i)):'—'}</span></label>`).join('')}</div>`).join(''):'<div class="empty">Your shopping list will appear once meals are added.</div>'}</div>
+<div class="card"><div class="section-head"><div><h2>Price book</h2><p class="sub">Approximate $/kg or $/L values for quick planning.</p></div></div><div class="list" id="priceBookRows">${Object.entries(state.priceBook[state.preferences.supermarket]||{}).map(([name,val])=>`<div class="row"><div class="meta"><b>${name}</b><span>Estimated price per kg/L</span></div><div class="right"><input style="width:90px" type="number" step="0.1" value="${val}" onchange="setPrice('${escAttr(name)}',this.value)"></div></div>`).join('')}</div></div></div>`;$('#shopSuper').onchange=e=>{state.preferences.supermarket=e.target.value;save()};restoreChecks()}
+function setPrice(name,val){state.priceBook[state.preferences.supermarket][name]=+val;save()} function clearChecks(){localStorage.removeItem('preplabChecks');renderShop()} function restoreChecks(){const c=JSON.parse(localStorage.getItem('preplabChecks')||'{}');$$('[data-shop]').forEach(x=>{x.checked=!!c[x.dataset.shop];x.onchange=()=>{c[x.dataset.shop]=x.checked;localStorage.setItem('preplabChecks',JSON.stringify(c))}})}
+
+function renderProfile(){const p=state.profile,e=estimateTargets(),a=activeTargets();$('#profile').innerHTML=`<div class="section-head"><div><h2>Profile & Targets</h2><p class="sub">Use the calculator as a starting point, then override anything you want.</p></div></div><div class="grid two"><div class="card"><h2>About you</h2><div style="height:14px"></div><div class="form-grid">
+<div class="field"><label>Age</label><input id="pAge" type="number" value="${p.age}"></div><div class="field"><label>Weight (kg)</label><input id="pWeight" type="number" step="0.1" value="${p.weight}"></div><div class="field"><label>Height (cm)</label><input id="pHeight" type="number" value="${p.height}"></div><div class="field"><label>BMR equation basis</label><select id="pSex"><option value="male" ${p.sex==='male'?'selected':''}>Male</option><option value="female" ${p.sex==='female'?'selected':''}>Female</option></select></div>
+<div class="field"><label>Activity level</label><select id="pActivity"><option value="1.2" ${p.activity==1.2?'selected':''}>Sedentary</option><option value="1.375" ${p.activity==1.375?'selected':''}>Lightly active</option><option value="1.55" ${p.activity==1.55?'selected':''}>Moderately active</option><option value="1.725" ${p.activity==1.725?'selected':''}>Very active</option><option value="1.9" ${p.activity==1.9?'selected':''}>Extremely active</option></select></div><div class="field"><label>Goal</label><select id="pGoal"><option value="loss" ${p.goal==='loss'?'selected':''}>Fat loss</option><option value="maintain" ${p.goal==='maintain'?'selected':''}>Maintain</option><option value="gain" ${p.goal==='gain'?'selected':''}>Gain</option></select></div>
+<div class="field full"><label>Adjustment from estimated maintenance (%)</label><input id="pGoalRate" type="number" min="0" max="35" value="${round((p.goalRate||0)*100)}"></div></div><div style="height:14px"></div><button class="btn" onclick="saveProfileFields()">Recalculate</button></div>
+<div class="card"><h2>Calculated starting point</h2><p class="sub">Mifflin–St Jeor BMR × activity, then your selected goal adjustment.</p><div style="height:14px"></div><div class="stats"><div class="stat"><b>${e.kcal}</b><span>kcal</span></div><div class="stat"><b>${e.p}</b><span>protein g</span></div><div class="stat"><b>${e.c}</b><span>carbs g</span></div><div class="stat"><b>${e.f}</b><span>fat g</span></div></div><div style="height:12px"></div><div class="mutedbox">This is an estimate, not a medical prescription. Your manual targets below always win.</div></div></div>
+<div style="height:16px"></div><div class="card"><div class="section-head"><div><h2>AI meal ideas</h2><p class="sub">Connect a Supabase Edge Function (or another secure endpoint) to generate fresh recipes. Without one, PrepLab uses its built-in idea library.</p></div><button class="btn secondary small" onclick="configureAI()">Configure AI</button></div><div class="mutedbox">For a GitHub Pages deployment, keep the AI API key on the server/Edge Function — never in this HTML file.</div></div>
+<div style="height:16px"></div><div class="card"><div class="section-head"><div><h2>Your editable targets</h2><p class="sub">Leave blank to use the calculated value.</p></div><button class="btn ghost small" onclick="resetTargets()">Use calculated</button></div><div class="form-grid"><div class="field"><label>Calories</label><input id="tCal" type="number" placeholder="${e.kcal}" value="${p.calories??''}"></div><div class="field"><label>Protein (g)</label><input id="tP" type="number" placeholder="${e.p}" value="${p.protein??''}"></div><div class="field"><label>Carbs (g)</label><input id="tC" type="number" placeholder="${e.c}" value="${p.carbs??''}"></div><div class="field"><label>Fat (g)</label><input id="tF" type="number" placeholder="${e.f}" value="${p.fat??''}"></div></div><div style="height:14px"></div><button class="btn" onclick="saveTargets()">Save targets</button></div>`}
+function saveProfileFields(){const p=state.profile;p.age=+$('#pAge').value;p.weight=+$('#pWeight').value;p.height=+$('#pHeight').value;p.sex=$('#pSex').value;p.activity=+$('#pActivity').value;p.goal=$('#pGoal').value;p.goalRate=+$('#pGoalRate').value/100;save()} function saveTargets(){const p=state.profile;p.calories=+$('#tCal').value||null;p.protein=+$('#tP').value||null;p.carbs=+$('#tC').value||null;p.fat=+$('#tF').value||null;save()} function resetTargets(){Object.assign(state.profile,{calories:null,protein:null,carbs:null,fat:null});save()}
+
+
+const NUTRITION_DB={
+ 'chicken breast':{kcal:120,p:23,c:0,f:2.6},'boneless skinless chicken breast':{kcal:120,p:23,c:0,f:2.6},
+ 'lean beef mince':{kcal:137,p:21,c:0,f:5},'beef mince':{kcal:137,p:21,c:0,f:5},'beef strips':{kcal:170,p:26,c:0,f:7},
+ 'pork tenderloin':{kcal:120,p:22,c:0,f:3},'pork':{kcal:150,p:22,c:0,f:6},
+ 'salmon':{kcal:208,p:20,c:0,f:13},'salmon fillet':{kcal:208,p:20,c:0,f:13},'shrimp':{kcal:99,p:24,c:0.2,f:0.3},'prawns':{kcal:99,p:24,c:0.2,f:0.3},
+ 'turkey breast':{kcal:135,p:29,c:0,f:1.6},'turkey mince':{kcal:150,p:20,c:0,f:7},
+ 'tofu':{kcal:144,p:17,c:3,f:9},'firm tofu':{kcal:144,p:17,c:3,f:9},
+ 'penne pasta':{kcal:357,p:12.5,c:72,f:1.5},'pasta':{kcal:357,p:12.5,c:72,f:1.5},'spaghetti':{kcal:350,p:13,c:71,f:1.5},'rice vermicelli':{kcal:360,p:7,c:80,f:0.5},'jasmine rice':{kcal:356,p:7,c:79,f:0.7},'basmati rice':{kcal:356,p:7.5,c:78,f:0.7},'rice':{kcal:356,p:7,c:79,f:0.7},'couscous':{kcal:376,p:13,c:77,f:0.6},'udon noodles':{kcal:130,p:3.5,c:27,f:0.8},'noodles':{kcal:350,p:10,c:72,f:2},
+ 'oats':{kcal:379,p:13,c:68,f:7},'rolled oats':{kcal:379,p:13,c:68,f:7},
+ 'potato':{kcal:77,p:2,c:17,f:0.1},'sweet potato':{kcal:86,p:1.6,c:20,f:0.1},
+ 'spinach':{kcal:23,p:2.9,c:1.4,f:0.4},'baby spinach':{kcal:23,p:2.9,c:1.4,f:0.4},'capsicum':{kcal:26,p:1,c:6,f:0.3},'red bell pepper':{kcal:31,p:1,c:6,f:0.3},'carrot':{kcal:41,p:0.9,c:10,f:0.2},'cucumber':{kcal:15,p:0.7,c:3.6,f:0.1},'daikon':{kcal:18,p:0.6,c:4.1,f:0.1},'cherry tomatoes':{kcal:18,p:0.9,c:3.9,f:0.2},'tomato':{kcal:18,p:0.9,c:3.9,f:0.2},'corn kernels':{kcal:86,p:3.4,c:19,f:1.2},'edamame':{kcal:121,p:12,c:9,f:5},
+ 'black beans':{kcal:132,p:8.9,c:24,f:0.5},'chickpeas':{kcal:164,p:8.9,c:27,f:2.6},
+ 'banana':{kcal:89,p:1.1,c:23,f:0.3},'mango':{kcal:60,p:0.8,c:15,f:0.4},'lime':{kcal:30,p:0.7,c:11,f:0.2},
+ 'greek yoghurt':{kcal:73,p:10,c:3.9,f:2},'light cream cheese':{kcal:160,p:8,c:6,f:10},'parmesan':{kcal:431,p:38,c:4,f:29},'grated parmesan cheese':{kcal:431,p:38,c:4,f:29},'mozzarella':{kcal:280,p:28,c:3.1,f:17},'light mozzarella':{kcal:220,p:27,c:4,f:9},
+ 'protein milk':{kcal:58,p:6,c:5,f:1},'whey protein':{kcal:390,p:78,c:8,f:6},
+ 'olive oil':{kcal:884,p:0,c:0,f:100},'sesame oil':{kcal:884,p:0,c:0,f:100},'peanut butter':{kcal:588,p:25,c:20,f:50},'honey':{kcal:304,p:0.3,c:82,f:0},'tomato paste':{kcal:82,p:4.3,c:18.9,f:0.5},'passata':{kcal:32,p:1.5,c:5,f:0.2},'soy sauce':{kcal:53,p:8,c:5,f:0.6},'sesame seeds':{kcal:573,p:18,c:23,f:50},
+ 'tortilla wrap':{kcal:310,p:8,c:52,f:8},'tortilla wraps':{kcal:310,p:8,c:52,f:8},'egg':{kcal:143,p:13,c:1,f:10},'eggs':{kcal:143,p:13,c:1,f:10},'avocado':{kcal:160,p:2,c:9,f:15},'lettuce':{kcal:15,p:1.4,c:2.9,f:0.2},'garlic':{kcal:149,p:6.4,c:33,f:0.5},'lemongrass':{kcal:99,p:1.8,c:25,f:0.5},
+ 'cajun seasoning':{kcal:250,p:8,c:40,f:5},'salt':{kcal:0,p:0,c:0,f:0},'black pepper':{kcal:251,p:10.4,c:64,f:3.3}
+};
+function normaliseIngredientName(name){
+ const n=String(name||'').toLowerCase().trim().replace(/\s+/g,' ');
+ if(NUTRITION_DB[n])return n;
+ const aliases=[...Object.keys(NUTRITION_DB)].sort((a,b)=>b.length-a.length);
+ return aliases.find(k=>n.includes(k))||null;
+}
+function ingredientNutrition(i){
+ const key=normaliseIngredientName(i.name);
+ const v=key?NUTRITION_DB[key]:null;
+ if(!v)return null;
+ const factor=nutrientFactor(i);
+ return {kcal:v.kcal*factor,p:v.p*factor,c:v.c*factor,f:v.f*factor};
+}
+function verifyGeneratedNutrition(idea){
+ let totals={kcal:0,p:0,c:0,f:0}, known=0;
+ (idea.ingredients||[]).forEach(i=>{const v=ingredientNutrition(i); if(v){totals.kcal+=v.kcal;totals.p+=v.p;totals.c+=v.c;totals.f+=v.f;known++;} });
+ const servings=Math.max(1,Number(idea.servings||1));
+ const per={kcal:totals.kcal/servings,p:totals.p/servings,c:totals.c/servings,f:totals.f/servings};
+ return {per,total:totals,known,totalIngredients:(idea.ingredients||[]).length,complete:known===(idea.ingredients||[]).length};
+}
+const ideaLibrary=[
+ {name:'Chipotle Chicken Loaded Potatoes',emoji:'🥔',type:'Dinner',protein:'chicken',effort:2,count:7,time:30,kcal:620,p:55,desc:'Roast potato, smoky chicken, corn, yoghurt sauce and light mozzarella.'},
+ {name:'Creamy Tuscan Chicken Pasta',emoji:'🍝',type:'Dinner',protein:'chicken',effort:3,count:8,time:35,kcal:640,p:58,desc:'Chicken, pasta, spinach, tomato and a lighter creamy sauce.'},
+ {name:'Honey Soy Chicken Noodles',emoji:'🍜',type:'Dinner',protein:'chicken',effort:2,count:7,time:25,kcal:590,p:52,desc:'Sticky chicken, noodles and crunchy veg. One-pan friendly.'},
+ {name:'Beef Enchilada Bowls',emoji:'🌯',type:'Dinner',protein:'beef',effort:2,count:8,time:30,kcal:610,p:48,desc:'Lean beef, beans, corn, rice, salsa and cheese.'},
+ {name:'Korean Beef Udon',emoji:'🥢',type:'Dinner',protein:'beef',effort:2,count:7,time:20,kcal:600,p:47,desc:'Lean beef, udon, greens and a sweet-savoury soy glaze.'},
+ {name:'Pork Souvlaki Bowls',emoji:'🥙',type:'Dinner',protein:'pork',effort:3,count:8,time:35,kcal:630,p:50,desc:'Lemon oregano pork, potatoes, cucumber and yoghurt.'},
+ {name:'Teriyaki Salmon Rice Bowls',emoji:'🍣',type:'Dinner',protein:'fish',effort:3,count:8,time:30,kcal:650,p:45,desc:'Salmon, rice, cucumber, edamame and teriyaki.'},
+ {name:'Crispy Tofu Satay Noodles',emoji:'🥜',type:'Dinner',protein:'vegetarian',effort:3,count:9,time:30,kcal:610,p:32,desc:'Crispy tofu, noodles and quick peanut satay sauce.'},
+ {name:'Breakfast Burrito Prep',emoji:'🌯',type:'Breakfast',protein:'any',effort:2,count:7,time:30,kcal:510,p:38,desc:'Eggs, lean mince, potato, cheese and salsa in a wrap.'},
+ {name:'Berry Cheesecake Overnight Oats',emoji:'🫐',type:'Breakfast',protein:'vegetarian',effort:1,count:6,time:10,kcal:460,p:38,desc:'Oats, yoghurt, whey, berries and light cream cheese.'},
+ {name:'Mango Protein Smoothie',emoji:'🥭',type:'Smoothie',protein:'vegetarian',effort:1,count:5,time:5,kcal:390,p:42,desc:'Mango, protein milk, whey, yoghurt and ice.'}
+];
+let lastGeneratedIdeas=[];
+async function openGenerateDialog(){generateDialog.showModal();}
+async function generateIdeas(){
+  const btn=$('#generateIdeasBtn');
+  const type=$('#genType')?.value||'Dinner';
+  const maxI=+($('#genIngredients')?.value||8);
+  const maxT=+($('#genTime')?.value||35);
+  const prot=$('#genProtein')?.value||'any';
+  const eff=+($('#genEffort')?.value||2);
+  const cuisineSel=$('#genCuisine')?.value||'any';
+  const cuisine=cuisineSel==='custom'?($('#genCuisineCustom')?.value.trim()||'any'):cuisineSel;
+  const vibe=$('#genVibe')?.value||'any';
+  const freeRequest=$('#genRequest')?.value.trim()||'';
+
+  if(btn?.disabled)return;
+  btn.disabled=true;
+  btn.textContent='Gemini is cooking…';
+  $('#generatedIdeas').innerHTML='<div class="mutedbox">✨ Gemini is cooking something up…</div>';
+  $('#aiStatus').textContent='Connecting to PrepLab AI…';
+
+  const target=remaining(), a=activeTargets();
+  const targetKcal=Math.max(250,round(target.kcal>0?target.kcal:a.kcal/3));
+  const targetP=Math.max(20,round(target.p>0?target.p:a.p/3));
+  const targetC=Math.max(0,round(target.c>0?target.c:a.c/3));
+  const targetF=Math.max(0,round(target.f>0?target.f:a.f/3));
+  const requestParts=[cuisine!=='any'?`${cuisine}-inspired cuisine`:'',vibe!=='any'?`${vibe} mood`:'',freeRequest].filter(Boolean);
+  const payload={
+    calories:targetKcal, protein:targetP, carbs:targetC, fat:targetF,
+    servings:state.plan.days||4,
+    effort:['minimal','minimal','easy','moderate','involved','involved'][eff]||'easy',
+    maxIngredients:maxI,maxMinutes:maxT,
+    proteins:prot==='any'?[]:[prot], exclusions:[],
+    preferences:[`Meal type: ${type}`,cuisine!=='any'?`Cuisine preference: ${cuisine}-inspired`:'Cuisine: surprise me',vibe!=='any'?`Mood/vibe: ${vibe}`:''].filter(Boolean),
+    existingMeals:state.plan.meals.map(m=>state.recipes.find(r=>r.id===m.recipeId)?.name).filter(Boolean),
+    request:requestParts.length?requestParts.join('. '):'Create something tasty, high-protein, practical for meal prep and not boring.',
+    count:3
+  };
+
+  try{
+    $('#aiStatus').textContent='Asking Gemini for 3 distinct meal ideas…';
+    const ai=await requestAI('',payload,45000);
+    const rawRecipes=Array.isArray(ai?.recipes)?ai.recipes:(ai?.recipe?[ai.recipe]:[]);
+    const aiIdeas=rawRecipes.slice(0,3).map((r,i)=>({
+      ...r,
+      emoji:['🍝','🥢','🌮'][i]||'✨',
+      type,
+      protein:prot,
+      effort:eff,
+      count:(r.ingredients||[]).filter(x=>!x.isPantryStaple).length,
+      prep:r.prepMinutes||0,
+      cook:r.cookMinutes||0,
+      time:(r.prepMinutes||0)+(r.cookMinutes||0),
+      desc:r.description||'',
+      method:Array.isArray(r.method)?r.method.map((m,j)=>`${j+1}. ${m}`).join('\n'):r.method||'',
+      ingredients:(r.ingredients||[]).map(x=>({name:x.name,qty:x.quantity,unit:x.unit,state:x.state,pantry:!!x.isPantryStaple,kcal:0,p:0,c:0,f:0})),
+      source:'ai',
+      cuisine:r.cuisine||cuisine,
+      notes:r.notes||[]
+    })).map(x=>{
+      const v=verifyGeneratedNutrition(x);
+      return {...x,verified:v,servings:Math.max(1,Number(x.servings||state.plan.days||4)),kcal:v.known?v.per.kcal:null,p:v.known?v.per.p:null,c:v.known?v.per.c:null,f:v.known?v.per.f:null};
+    });
+
+    if(!aiIdeas.length) throw new Error('Gemini returned no recipes. Check the Edge Function response.');
+    lastGeneratedIdeas=aiIdeas;
+    renderGeneratedIdeas(aiIdeas);
+    $('#aiStatus').textContent=`Generated by Gemini · ${aiIdeas.length} idea${aiIdeas.length===1?'':'s'}. Nutrition is estimated by PrepLab from its current ingredient database before saving.`;
+  }catch(error){
+    const msg=error?.message||'Unknown error';
+    $('#generatedIdeas').innerHTML=`<div class="errorbox"><b>Gemini couldn't generate the meals.</b><div class="small muted" style="margin-top:6px">${esc(msg)}</div><div class="small muted" style="margin-top:6px">Open Configure AI to verify the endpoint and Supabase publishable key, then try again.</div></div>`;
+    $('#aiStatus').textContent='Generation failed — see the diagnostic message above.';
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Give me 3 ideas';
+  }
+}
+
+function pickLocalIdeas(type,maxI,maxT,prot,eff){let arr=ideaLibrary.filter(x=>x.type===type&&x.count<=maxI&&x.time<=maxT&&x.effort<=eff+1&&(prot==='any'||x.protein===prot||x.protein==='any'));if(arr.length<3)arr=ideaLibrary.filter(x=>x.type===type&&x.count<=maxI+2&&x.time<=maxT+10);return arr.sort(()=>Math.random()-.5).slice(0,3)}
+function renderGeneratedIdeas(arr){
+  $('#generatedIdeas').innerHTML=arr.length?arr.map((x,i)=>{const macro=x.verified?.known?`<span class="tag"><strong>${round(x.kcal||0)}</strong> kcal</span><span class="tag"><strong>${round(x.p||0)}g P</strong></span><span class="tag"><strong>${round(x.c||0)}g C</strong></span><span class="tag"><strong>${round(x.f||0)}g F</strong></span>`:`<span class="tag">Macros unavailable yet</span>`;const status=x.verified?.complete?'PrepLab estimate':'Partial estimate';return `<div class="row"><div class="meta"><b>${esc(x.emoji||'🍽️')} ${esc(x.name)}</b><span>${esc(x.desc||x.description||'')}</span><div class="macroline">${macro}<span class="tag">${status}</span><span class="tag">${round(x.count||0)} main ingredients</span><span class="tag">${round(x.time||((x.prep||0)+(x.cook||0)))} min</span><span class="tag">${x.source==='ai'?'AI':'Built-in'}</span></div>${x.verified?.known?`<div class="tiny" style="margin-top:6px">Based on ${x.verified.known}/${x.verified.totalIngredients} ingredients currently recognised by PrepLab.</div>`:''}</div><button class="btn secondary small" onclick="useGeneratedIdea(${i})">Use idea</button></div>`}).join(''):'<div class="empty">No ideas fit those limits. Loosen one filter slightly.</div>'
+}
+async function requestAI(path,payload,timeoutMs=45000){
+  const endpoint=localStorage.getItem('preplabAIEndpoint')||'https://nxyutzeplurgirgdivtd.supabase.co/functions/v1/generate-recipe';
+  let publishableKey=localStorage.getItem('preplabSupabasePublishableKey')||'';
+  if(!endpoint)throw new Error('AI endpoint is not configured.');
+  if(!publishableKey){
+    publishableKey=prompt('PrepLab needs your Supabase publishable key for the browser request. You only need to enter this once per browser. Find it in Supabase > Settings > API Keys.\n\nDo NOT paste your Gemini key or a secret/service-role key.', '');
+    if(!publishableKey)throw new Error('No Supabase publishable key was provided.');
+    localStorage.setItem('preplabSupabasePublishableKey',publishableKey.trim());
+  }
+  const url=endpoint.includes('/functions/v1/')?endpoint:endpoint.replace(/\/$/,'')+path;
+  let lastError='';
+  for(let attempt=0;attempt<3;attempt++){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),timeoutMs);
+    try{
+      const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','apikey':publishableKey,'x-client-info':'preplab-web'},body:JSON.stringify(payload),signal:controller.signal});
+      const raw=await res.text();
+      clearTimeout(timer);
+      let data=null;
+      try{data=raw?JSON.parse(raw):null;}catch{}
+      if(res.ok)return data;
+      lastError=data?.details||data?.error||`HTTP ${res.status}`;
+      if(![408,425,429,500,502,503,504].includes(res.status))throw new Error(lastError);
+    }catch(error){
+      clearTimeout(timer);
+      lastError=error?.name==='AbortError'?'The AI request timed out after 45 seconds.':(error?.message||String(error));
+      if(error?.name!=='AbortError' && !/429|502|503|504|timed out/i.test(lastError))throw new Error(lastError);
+      if(attempt===2)throw new Error(lastError);
+    }
+    $('#aiStatus').textContent=`Gemini is busy — retrying (${attempt+1}/2)…`;
+    await new Promise(r=>setTimeout(r,1200*Math.pow(2,attempt)));
+  }
+  throw new Error(lastError||'Gemini could not respond.');
+}
+
+function useGeneratedIdea(index){const x=lastGeneratedIdeas[index];if(!x)return;generateDialog.close();openRecipeDialog();$('#recipeName').value=x.name||'';$('#recipeEmoji').value=x.emoji||'🍽️';$('#recipeMealType').value=x.type||$('#genType').value;$('#recipePrep').value=+(x.prep||0);$('#recipeCook').value=+(x.cook||Math.max(0,(x.time||0)-(x.prep||0)));$('#recipeMainCount').value=+(x.count||8);$('#recipeEffort').value=+(x.effort||2);$('#recipeMethod').value=x.method||`1. Prepare the ingredients listed below.\n2. Cook according to the recipe description: ${x.desc||x.description||x.name||'Combine and cook until done.'}\n3. Divide into the selected serves.`;$('#ingredientRows').innerHTML=(x.ingredients||[]).length?x.ingredients.map(i=>{const n=ingredientNutrition(i);return ingredientRow(ing(i.name,i.qty,i.unit||'g',i.state||'raw',n?NUTRITION_DB[normaliseIngredientName(i.name)].kcal:0,n?NUTRITION_DB[normaliseIngredientName(i.name)].p:0,n?NUTRITION_DB[normaliseIngredientName(i.name)].c:0,n?NUTRITION_DB[normaliseIngredientName(i.name)].f:0,!!i.pantry))}).join(''):'<div class="empty">No ingredients returned.</div>';
+  if(x.verified&&!x.verified.complete)$('#recipeMethod').insertAdjacentHTML('afterend','<div class="tiny" style="margin-top:8px;color:var(--muted)">Some AI ingredients are not yet in PrepLab’s nutrition database. Add their nutrition per 100g/unit before saving for verified macros.</div>');}
+function configureAI(){
+  const current=localStorage.getItem('preplabAIEndpoint')||'https://nxyutzeplurgirgdivtd.supabase.co/functions/v1/generate-recipe';
+  const endpoint=prompt('AI meal endpoint URL.',current);
+  if(endpoint===null)return;
+  const key=prompt('Supabase publishable key (Settings > API Keys). This is safe to use in the browser. Do NOT enter a secret/service-role key.',localStorage.getItem('preplabSupabasePublishableKey')||'');
+  if(key===null)return;
+  localStorage.setItem('preplabAIEndpoint',endpoint.trim());
+  localStorage.setItem('preplabSupabasePublishableKey',key.trim());
+  alert('AI generator settings saved.');
+}
+$('#generateIdeasBtn').onclick=()=>generateIdeas();$('#genEffort').oninput=e=>{$('#effortText').textContent=effortName(e.target.value)};['genType','genIngredients','genTime','genProtein','genVibe'].forEach(id=>$('#'+id).onchange=()=>{}); $('#genCuisine').onchange=e=>{$('#customCuisineField').style.display=e.target.value==='custom'?'grid':'none';};
+
+function renderAll(){renderDashboard();renderPlan();renderRecipes();renderShop();renderProfile();const a=activeTargets();$('#topTarget').textContent=`Target · ${a.kcal} kcal · ${a.p}g protein`}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))} function escAttr(s){return String(s??'').replace(/'/g,"\\'")}
+
+seedIfNeeded();renderAll();
+if('serviceWorker' in navigator && location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
